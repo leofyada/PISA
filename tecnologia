@@ -1,0 +1,80 @@
+#------------------------------
+#- INFORMAÇÕES SOBRE O SCRIPT -
+#------------------------------
+
+# Autor(a): Leonardo Fujisima Yada
+
+# Data de elaboração do script: 25.01.2023
+# Data da última atualização do scipt: -
+
+#--------------------------
+#- CONFIGURAÇÕES INICIAIS -
+#--------------------------
+
+# Utilização de vírgula como separador de casas decimais
+
+options(OutDec = ",")
+
+# Diretório de trabalho
+
+getwd() # Verificação do diretório de trabalho atual
+DIR <- setwd("/Users/leonardoyada/OneDrive/PISA/2018/")
+
+# Bibliotecas utilizadas neste exercício
+
+library(intsvy)  # Importação de manipulação dos microdados do Pisa
+library(ggplot2) # Visualização de dados
+
+#-----------------------
+#- IMPORTAÇÃO DE DADOS -
+#-----------------------
+
+# Importação de dados do questionário de escolas do Pisa 2018
+
+pisa_18 <- pisa.select.merge(folder=DIR,
+                             student.file="CY07_MSU_STU_QQQ.sav",
+                             school.file="CY07_MSU_SCH_QQQ.sav",
+                             student=c("CNT"),
+                             school=c('SC155Q06HA', 'SC155Q11HA'),
+                             countries=c("BRA", "ARG", "CHL", "COL", "PER", "URY"))
+
+#--------------------
+#- ANÁLISE DE DADOS -
+#--------------------
+
+# Teachers have the skills to integrate digital devices in instruction
+
+data <- pisa.table('SC155Q06HA', by="CNT", pisa_18)
+
+# Conversão de variável em fator
+
+data$SC155Q06HA <- factor(
+  x=data$SC155Q06HA,
+  levels=c("1", "2", "3", "4"),
+  labels=c("Strongly disagree", "Disagree", "Agree", "Strongly agree")
+)
+
+#-------------------------
+#- VISUALIZAÇÃO DE DADOS -
+#-------------------------
+
+# Criação de gráfico
+
+ggplot(
+  data=subset(data), mapping=aes(x=CNT, y=Percentage, fill=SC155Q06HA)
+) +
+  geom_col(
+    position="dodge"
+  ) +
+  geom_text(
+    aes(label=round(Percentage, 1)), position=position_dodge(0.9), vjust=-1, size=4
+  ) +
+  theme(
+    axis.title = element_blank(),
+    legend.title = element_blank(), 
+    legend.position = "top",
+    panel.background = element_blank(), 
+    text = element_text(size=17)
+  ) +
+  ylim(0,75)
+
